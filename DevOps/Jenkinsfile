@@ -1,0 +1,188 @@
+def TARGET_ENV = "DEV" 
+
+def target_server = "USLANEWCLDEV"
+//def target_tiers  = [:]
+
+def deployBuild = true
+def deploymentID  = ""
+def targetFolder = "ClientSitePDF"
+def homeFolder = "ClientSitePDF" 
+
+
+pipeline {
+   agent any
+   environment {	  
+	  API_URL    = "https://api.github.com/repos/wedbush-securities/ClientSitePDF"	  
+      PROJECT_NAME = "ClientSitePDF"
+   }
+   stages
+{
+    stage('Init') {
+        steps {
+            script {
+                echo " ==================== Loading shared library devops-library"
+		    echo "** DEPLOY         : $deployBuild"
+               library identifier: 'devops-library@master', 
+                  retriever: modernSCM(
+                     [$class: 'GitSCMSource',
+                     remote: "https://github.com/wedbush-securities/devops-library",
+                     credentialsId: 'wedbush-jenkins-github-integration']), 
+                  changelog: false
+
+
+               TARGET_ENV = envLib.getTargetEnv(env.TARGET, env.GIT_BRANCH.replace("origin/", ""))
+               dotNetEnv = envLib.getDotNetEnvironment(TARGET_ENV)
+               //target_tiers = getTiers()
+
+               envLib.setBuildInfo(TARGET_ENV)
+
+
+               target_server = getServer(TARGET_ENV)
+               deployBuild = envLib.isDeployBuild()
+               //target_tiers.WEB = true
+
+               echo "** TARGET ENV     : $TARGET_ENV"
+              // echo "** TIERS TO BUILD : $target_tiers"
+               echo "** .NET ENV       : $dotNetEnv"
+               echo "** DEPLOY         : $deployBuild"
+               if (deployBuild)
+{
+    echo "** SERVER        : $target_server"
+               }
+            }
+         }
+      }
+
+      stage('BUILD PHASE') {
+    parallel {
+        stage('Build API') {
+           
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    script {
+                        psLib.runPowerShWithState(".\\DevOps\\BuildAPI.ps1 ${dotNetEnv.configuration} ${dotNetEnv.envName} ${TARGET_ENV.toLowerCase()}", "api/build", "Jenkins")
+                     }
+                }
+            }
+        }
+
+    }
+}
+	
+stage('PRE-DEPLOY PHASE') {
+ when { expression { deployBuild && currentBuild.currentResult.equals("SUCCESS") } }
+ steps {
+    script {
+       deploymentID  = githubLib.createGitDeployment(TARGET_ENV)
+       echo "** GITHUB DEPLOYMENT ID    : ${deploymentID}"
+    }
+ }
+}  	  
+stage('DEPLOY PHASE') {
+    when { expression { deployBuild && currentBuild.currentResult.equals("SUCCESS") } }
+    parallel {
+        stage('Deploy API') {
+            
+            steps {
+                script {
+                    psLib.runPowerSh(".\\DevOps\\DeployAPI.ps1 ${TARGET_ENV} ${target_server}")
+                  }
+            }
+        }
+
+    }
+}
+   }
+
+   post
+{
+    always {
+        script {
+            def state = currentBuild.result.equals("SUCCESS") ? "success" : "failure"
+
+            //Notify by email on failure (requires GitHub accounts permissions to query email)
+            if (state.equals("failure"))
+            {
+                notificationLib.sendFailedBuildEmail("${env.API_URL}/commit/")
+            }
+
+            if (deployBuild)
+            {
+
+                if (!(deploymentID.equals("")))
+                {
+                    // Publish deploy results to GitHub
+                    githubLib.updateGitDeployment(deploymentID, state, getURL(TARGET_ENV))
+                }
+
+                if (state.equals("success"))
+                {
+
+                    if (TARGET_ENV.equals("PROD"))
+                    {
+                        // Tag if this is Prod
+                        githubLib.createReleaseRef (params.LABEL)
+                    }
+
+                }
+            }
+        }
+    }
+}
+}
+
+def getServer(targetEnv)
+{
+    def dev = "USLANEWCLDEV"
+    def uat  = "USLAVMS04UAT" 
+    def prod = ""
+   
+   if("DEV".equals(targetEnv)) {
+      return dev;
+   } else if ("UAT".equals(targetEnv)) {
+      return uat;
+   } else if ("PROD".equals(targetEnv)) {
+      return prod;
+   } else {
+      return dev;
+   }
+}
+
+def getURL(targetEnv)
+{
+     
+        return "https://wedbush.com/";
+  
+}
+
+def getTiers()
+{
+    /* 
+       Returns: A Map with the tiers to build
+       Default: ["API" : true]
+    */
+
+    if (!params || !params.TIERS ) {
+    // No parameters, all will be built
+    return (
+
+       [
+          "API" : true
+          
+       ]
+    )
+   }
+
+def result = [
+   "API" : false
+      
+   ]
+   def list = params.TIERS.replaceAll("\\s","").toUpperCase().split(",")
+   for (String value : list)
+    if ((value = ~'API').matches())
+    {
+        result[value] = true
+      }
+
+return result
+}

@@ -1,0 +1,24 @@
+﻿apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: weatherapi
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /swagger
+        backend:
+          service:
+            name: weatherapi
+            port:
+              number: 80
+        pathType: Prefix
+      - path: /weatherforecast
+        backend:
+          service:
+            name: weatherapi
+            port:
+              number: 80
+        pathType: Prefix

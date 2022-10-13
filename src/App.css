@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'SourceSansPro-Black';
+
+  src: local('SourceSansPro-Black'),
+    url(./assets/fonts/SourceSansPro-Black.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'SourceSansPro-BlackItalic';
+
+  src: local('SourceSansPro-BlackItalic'),
+    url(./assets/fonts/SourceSansPro-BlackItalic.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'SourceSansPro-Bold';
+
+  src: local('SourceSansPro-Bold'),
+    url(./assets/fonts/SourceSansPro-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'SourceSansPro-Regular';
+
+  src: local('SourceSansPro-Regular'),
+    url(./assets/fonts/SourceSansPro-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'SourceSansPro-SemiBold';
+
+  src: local('SourceSansPro-SemiBold'),
+    url(./assets/fonts/SourceSansPro-SemiBold.ttf) format('truetype');
+}
