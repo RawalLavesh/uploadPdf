@@ -5,19 +5,19 @@ const CoverageTableColumns = [
   },
   {
     Header: '#',
-    accessor: 'id',
+    accessor: 'documentId',
   },
   {
     Header: 'Uploaded by',
-    accessor: 'name',
+    accessor: 'uploadedBy',
   },
   {
     Header: 'Date',
-    accessor: 'date',
+    accessor: 'uploadedDate',
   },
   {
     Header: 'File name',
-    accessor: 'fileName',
+    accessor: 'documentName',
   },
 ]
 

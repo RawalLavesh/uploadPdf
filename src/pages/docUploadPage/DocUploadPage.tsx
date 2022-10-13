@@ -13,7 +13,7 @@ const DocUploadPage = () => {
   return (
     <DocUploadPageLayout>
       <MainContentWrapper>
-        <UploadDoc />
+        {/* <UploadDoc /> */}
         <CoverageList />
       </MainContentWrapper>
     </DocUploadPageLayout>

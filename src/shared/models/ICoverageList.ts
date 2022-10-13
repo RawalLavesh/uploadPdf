@@ -1,5 +1,4 @@
 export interface CoverageListRequestModel {
-    // userName?: string;
     fromDate: string;
     toDate: string;
     pageIndex?: number,
@@ -12,10 +11,6 @@ export interface UpdateReviewRequestModel {
     allocationQuantity: number,
     userName ?: string
     batchDescription?: string
-    // id?: string
-    // name?: string
-    // date?: string
-    // fileName?: string
 }
 
 export interface ReviewRequest {
@@ -36,18 +31,19 @@ export interface ReviewRequest {
     updatedDate: Date | string
     recordsCount?: number,
 
-    id?: string
-    name?: string
-    date?: string
-    fileName?: string
-
+    documentId?: string
+    documentName?: string
+    uploadedBy?: string
+    uploadedDate?: string
+    documentType?:number
 }
 export interface ReviewTable {
 
-    id?: string
-    name?: string
-    date?: string
-    fileName?: string
+    documentId?: string
+    documentName?: string
+    uploadedBy?: string
+    uploadedDate?: string
+    documentType?:number
 }
 
 export interface ReviewLocateResponseModel {

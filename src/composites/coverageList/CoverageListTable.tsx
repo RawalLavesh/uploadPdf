@@ -39,7 +39,7 @@ export const CoverageListTable = ({
 ReviewTableProps) => {
   const data: ReviewTable[] = useMemo(() => rowData, [rowData])
   const columns = useMemo<ColumnDetails[]>(() => CoverageTableColumns, []) as []
-  console.log('CoverageTableColumns=>>', columns)
+  // console.log('CoverageTableColumns=>>', columns)
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data })
   // console.log('rows=>>', rows)
@@ -114,7 +114,7 @@ ReviewTableProps) => {
                             {...column.getHeaderProps()}
                             key={columnIndex}
                           >
-                            {console.log('column', column)}
+                            {/* {console.log('column', column)} */}
                             {column.render('Header')}
                           </TableHeaderCell>
                         ))}
