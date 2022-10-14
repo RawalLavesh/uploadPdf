@@ -1,10 +1,4 @@
-import React, {
-  BaseSyntheticEvent,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import React, { BaseSyntheticEvent, useRef, useState } from 'react'
 import {
   MasterWrapper,
   SubWrapper,
@@ -20,19 +14,16 @@ import {
   FormContainer,
   LottieWrapper,
   SpinnerWrapper,
-  ToastWrapper,
 } from './styles'
 import Label from '../../components/label/Label'
 import Button from '../../components/button/Button'
 import { CoverageListTable } from './CoverageListTable'
 import ExportCSV from '../../utils/ExportCSV'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import {
   CoverageListRequestModel,
-  ReviewRequest,
+  ReviewTable,
 } from '../../shared/models/ICoverageList'
-import { AxiosError } from 'axios'
-import { Toast } from '../../components/toast/Toast'
 import CustomCalendar from '../../components/customCalendar/CustomCalendar'
 import {
   WDLabelHeadingWhite,
@@ -57,17 +48,9 @@ import Loader from '../../assets/lottiefiles/loader.json'
 import SvgFileExport from '../../components/svg/SvgFileExport'
 import { COLORS } from '../../theme/Colors'
 import { AuthContext } from '../../store/LoginAuthContext'
-import coverageListContext, {
-  CoverageListContextProvider,
-} from '../../store/CoverageListContext'
 import moment from 'moment'
 
 export const CoverageList = () => {
-  type LocationState = {
-    status: boolean
-    text: string
-    fromSubmit: boolean
-  }
   const [staticData, setStaticData] = useState([
     {
       documentId: '1',
@@ -153,21 +136,13 @@ export const CoverageList = () => {
   })
   const form = useRef<HTMLFormElement>(null)
   const csvLinkRef = useRef<HTMLDivElement>(null)
-  // const reviewLocateRequestData = useContext(coverageListContext)
-  // const [reviewRequestData, setReviewData] = useState(
-  //   reviewLocateRequestData.coverageListRequests
-  // )
-  // const [reviewRequestData, setReviewData] = useState(staticData)
-  // const [reviewFilteredDataCount, setReviewFilteredDataCount] = useState(
-  //   reviewRequestData.totalRecordCount
-  // )
+
   const [reviewFilteredDataCount, setReviewFilteredDataCount] = useState(
     staticData.length
   )
-  const [downloadReviewData, setDownloadReviewData] = useState<ReviewRequest[]>(
+  const [downloadReviewData, setDownloadReviewData] = useState<ReviewTable[]>(
     []
   )
-  const [modal, setModal] = useState(false)
   const [tmpStaticData, setTmpStaticData] = useState(staticData)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -200,7 +175,6 @@ export const CoverageList = () => {
       pageIndex,
       pageSize,
     })
-    setModal(true)
     setIsLoading(true)
     const unixStartDate = moment(filters.fromDate).unix() * 1000
     const unixEndDate = moment(filters.toDate).unix() * 1000
@@ -252,147 +226,138 @@ export const CoverageList = () => {
   }
 
   return (
-    <CoverageListContextProvider>
-      <MasterWrapper>
-        <SubWrapper>
-          <ReviewLocate>
-            <WDCard>
-              <WDCardHeader>
-                <WDLabelHeadingWhite>
-                  <Label>{'Coverage List File History'}</Label>
-                </WDLabelHeadingWhite>
-                <WDLabelHeadingWhiteBold>
-                  {/* <Label>{`Total: ${reviewRequestData.totalRecordCount}`}</Label> */}
-                  <Label>{`Total: ${staticData.length}`}</Label>
-                </WDLabelHeadingWhiteBold>
-              </WDCardHeader>
-              <WDCardContentRound>
-                <WDCardBlue>
-                  <WDCardBlueTop>
-                    <FormContainer ref={form} onSubmit={submitForm}>
-                      <FilterContainer>
-                        <DateWrapper>
-                          <WDCalendar>
-                            <CustomCalendar
-                              name="fromDate"
-                              placeholder="From Date"
-                              onChange={getFromDate}
-                              resetValue={filters.fromDate}
-                              maxDate={new Date()}
-                            />
-                          </WDCalendar>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <WDCalendar>
-                            <CustomCalendar
-                              name="toDate"
-                              placeholder="To Date"
-                              onChange={getToDate}
-                              resetValue={filters.toDate}
-                              maxDate={new Date()}
-                              minDate={new Date(filters.fromDate)}
-                            />
-                          </WDCalendar>
-                        </DateWrapper>
-                        <ButtonWrapper>
-                          {filters.fromDate && filters.toDate && !isChange ? (
-                            <WDButton>
-                              <Button
-                                type={'button'}
-                                disabled={false}
-                                onClick={() => openModal(1, 50)}
-                              >
-                                {'Apply'}
-                              </Button>
-                            </WDButton>
-                          ) : (
-                            <WDButtonDisabled>
-                              <Button type={'button'} disabled={true}>
-                                {'Apply'}
-                              </Button>
-                            </WDButtonDisabled>
-                          )}
-                        </ButtonWrapper>
-                        <ButtonWrapper>
-                          {!isChange ? (
-                            <WDButtonOutLine>
-                              <Button
-                                disabled={false}
-                                type={'button'}
-                                onClick={resetValues}
-                              >
-                                {'Reset'}
-                              </Button>
-                            </WDButtonOutLine>
-                          ) : (
-                            <WDButtonDisabled>
-                              <Button
-                                disabled={true}
-                                type={'button'}
-                                onClick={resetValues}
-                              >
-                                {'Reset'}
-                              </Button>
-                            </WDButtonDisabled>
-                          )}
-                        </ButtonWrapper>
-                      </FilterContainer>
-                    </FormContainer>
-                    {staticData.length > 0 && (
-                      <DownloadContainer>
-                        <DownloadButtonWrapper>
-                          <FlexItem>
-                            <DownloadWrapper>
-                              <ExportCSV
-                                csvData={downloadReviewData}
-                                fileName={
-                                  'Export File History' +
-                                  formatDate(new Date()) +
-                                  '.csv'
-                                }
-                                onClickCallBackFn={downloadFile}
-                                reference={csvLinkRef}
-                              >
-                                <SvgFileExport
-                                  fillColor={COLORS.UI.Primary60}
-                                />
-                                <WDLabelPrimary>
-                                  <Label>{'Export File History'}</Label>
-                                </WDLabelPrimary>
-                              </ExportCSV>
-                            </DownloadWrapper>
-                          </FlexItem>
-                        </DownloadButtonWrapper>
-                      </DownloadContainer>
-                    )}
-                  </WDCardBlueTop>
-                </WDCardBlue>
-                {/* {modal && ( */}
-                <DetailsContainer>
-                  <CoverageListTable
-                    rowData={staticData}
-                    totalRecords={reviewFilteredDataCount}
-                    isLoading={false}
-                    pageIndex={1}
-                    pageSize={50}
-                    // updateTableCallbackFn={openModal}
-                  />
-                </DetailsContainer>
-                {/* )} */}
-              </WDCardContentRound>
-            </WDCard>
-          </ReviewLocate>
-        </SubWrapper>
+    <MasterWrapper>
+      <SubWrapper>
+        <ReviewLocate>
+          <WDCard>
+            <WDCardHeader>
+              <WDLabelHeadingWhite>
+                <Label>{'Coverage List File History'}</Label>
+              </WDLabelHeadingWhite>
+              <WDLabelHeadingWhiteBold>
+                <Label>{`Total: ${staticData.length}`}</Label>
+              </WDLabelHeadingWhiteBold>
+            </WDCardHeader>
+            <WDCardContentRound>
+              <WDCardBlue>
+                <WDCardBlueTop>
+                  <FormContainer ref={form} onSubmit={submitForm}>
+                    <FilterContainer>
+                      <DateWrapper>
+                        <WDCalendar>
+                          <CustomCalendar
+                            name="fromDate"
+                            placeholder="From Date"
+                            onChange={getFromDate}
+                            resetValue={filters.fromDate}
+                            maxDate={new Date()}
+                          />
+                        </WDCalendar>
+                      </DateWrapper>
+                      <DateWrapper>
+                        <WDCalendar>
+                          <CustomCalendar
+                            name="toDate"
+                            placeholder="To Date"
+                            onChange={getToDate}
+                            resetValue={filters.toDate}
+                            maxDate={new Date()}
+                            minDate={new Date(filters.fromDate)}
+                          />
+                        </WDCalendar>
+                      </DateWrapper>
+                      <ButtonWrapper>
+                        {filters.fromDate && filters.toDate && !isChange ? (
+                          <WDButton>
+                            <Button
+                              type={'button'}
+                              disabled={false}
+                              onClick={() => openModal(1, 50)}
+                            >
+                              {'Apply'}
+                            </Button>
+                          </WDButton>
+                        ) : (
+                          <WDButtonDisabled>
+                            <Button type={'button'} disabled={true}>
+                              {'Apply'}
+                            </Button>
+                          </WDButtonDisabled>
+                        )}
+                      </ButtonWrapper>
+                      <ButtonWrapper>
+                        {!isChange ? (
+                          <WDButtonOutLine>
+                            <Button
+                              disabled={false}
+                              type={'button'}
+                              onClick={resetValues}
+                            >
+                              {'Reset'}
+                            </Button>
+                          </WDButtonOutLine>
+                        ) : (
+                          <WDButtonDisabled>
+                            <Button
+                              disabled={true}
+                              type={'button'}
+                              onClick={resetValues}
+                            >
+                              {'Reset'}
+                            </Button>
+                          </WDButtonDisabled>
+                        )}
+                      </ButtonWrapper>
+                    </FilterContainer>
+                  </FormContainer>
+                  {staticData.length > 0 && (
+                    <DownloadContainer>
+                      <DownloadButtonWrapper>
+                        <FlexItem>
+                          <DownloadWrapper>
+                            <ExportCSV
+                              csvData={downloadReviewData}
+                              fileName={
+                                'Export File History' +
+                                formatDate(new Date()) +
+                                '.csv'
+                              }
+                              onClickCallBackFn={downloadFile}
+                              reference={csvLinkRef}
+                            >
+                              <SvgFileExport fillColor={COLORS.UI.Primary60} />
+                              <WDLabelPrimary>
+                                <Label>{'Export File History'}</Label>
+                              </WDLabelPrimary>
+                            </ExportCSV>
+                          </DownloadWrapper>
+                        </FlexItem>
+                      </DownloadButtonWrapper>
+                    </DownloadContainer>
+                  )}
+                </WDCardBlueTop>
+              </WDCardBlue>
+              <DetailsContainer>
+                <CoverageListTable
+                  rowData={staticData}
+                  isLoading={false}
+                  pageIndex={1}
+                  pageSize={50}
+                />
+              </DetailsContainer>
+            </WDCardContentRound>
+          </WDCard>
+        </ReviewLocate>
+      </SubWrapper>
 
-        {isAPILoading && (
-          <SpinnerWrapper>
-            <LottieWrapper>
-              <Lottie animationData={Loader} loop={true} />
-            </LottieWrapper>
-          </SpinnerWrapper>
-        )}
-      </MasterWrapper>
-    </CoverageListContextProvider>
+      {isAPILoading && (
+        <SpinnerWrapper>
+          <LottieWrapper>
+            <Lottie animationData={Loader} loop={true} />
+          </LottieWrapper>
+        </SpinnerWrapper>
+      )}
+    </MasterWrapper>
   )
 }
 

@@ -10,6 +10,7 @@ import Button from '../components/button/Button'
 import { WDButtonTransparent } from '../components/ui/WDButton'
 
 import { CSVWrapper } from './styles'
+import { ReviewTable } from '../shared/models/ICoverageList'
 
 const ExportCSV = (props: {
   csvData:
@@ -17,6 +18,7 @@ const ExportCSV = (props: {
     | StockLocateResponse[]
     | ReviewRequest[]
     | InventoryResponseModel[]
+    | ReviewTable[]
   children: React.ReactNode
   fileName: string
   headers?: {
