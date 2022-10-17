@@ -4,20 +4,18 @@ import { DocUploadPageLayout } from './styles'
 import { MainContentWrapper } from '../../components/layouts/landingPage/styles'
 import { AuthContext } from '../../store/LoginAuthContext'
 import { UploadDoc } from '../../composites/uploadDoc/UploadDoc'
-import { CoverageList } from '../../composites/coverageList/CoverageList'
 
 const DocUploadPage = () => {
   const { isLoggedIn } = useContext(AuthContext)
 
   // if (isLoggedIn) {
-  return (
-    <DocUploadPageLayout>
-      <MainContentWrapper>
-        <UploadDoc />
-        <CoverageList />
-      </MainContentWrapper>
-    </DocUploadPageLayout>
-  )
+    return (
+      <DocUploadPageLayout>
+        <MainContentWrapper>
+          <UploadDoc />
+        </MainContentWrapper>
+      </DocUploadPageLayout>
+    )
   // } else {
   //   return <Navigate to={{ pathname: '/login' }} state={{redirectUrl: '/submit'}} />
   // }

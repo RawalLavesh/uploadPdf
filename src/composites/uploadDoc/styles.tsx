@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { COLORS } from '../../theme/Colors'
+import { SIZES } from '../../theme/Sizes'
 
 export const MasterWrapper = styled.div`
   display: flex;
@@ -30,10 +31,13 @@ export const LabelS = styled.div`
   flex: 1;
 `
 export const Wrapper2 = styled.div`
-  width: 100%;
-  padding: 1rem 10%;
+  width: 50%;
+  padding: 1rem 1% 1rem 10%;
 `
-
+export const Wrapper3 = styled.div`
+  width: 50%;
+  padding: 1rem 10% 1rem 1%;
+`
 export const SubWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -99,6 +103,20 @@ export const PButton = styled.div`
 export const ButtonWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
+`
+export const WDCard = styled.div`
+  padding: ${SIZES[2]} ${SIZES[4]};
+  gap: ${SIZES[1]};
+  /* background: ${COLORS.UI.BackgroundStrong}; */
+  background-color: #ffffff;
+`
+
+export const WDCardContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: ${SIZES[3]} ${SIZES[4]};
+  background: ${COLORS.Background.White};
 `

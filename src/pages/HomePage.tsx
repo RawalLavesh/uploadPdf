@@ -25,9 +25,7 @@ function PageContent() {
         <SubWrapper>
           <Outlet />
         </SubWrapper>
-        <FooterLayout>
-          <FooterContent />
-        </FooterLayout>
+      
       </BodyPane>
     </MainPane>
   )

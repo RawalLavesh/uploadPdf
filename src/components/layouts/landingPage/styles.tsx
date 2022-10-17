@@ -42,6 +42,6 @@ export const MainContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   color: black;
-  background-color: ${COLORS.Background.NeutralWeak};
+  background-color: #ffffff;
   padding-bottom: 16px;
 `

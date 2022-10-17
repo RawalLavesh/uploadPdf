@@ -18,11 +18,11 @@ export const UploadWrapper = styled.div`
   border-radius: 8px;
   padding: 1.5rem 0;
   display: flex;
-  margin-top: 0.5rem;
   &.file-uploaded {
     background-color: ${COLORS.Background.NeutralMedium};
     border: none;
   }
+height: 142px;
 `
 export const RowWrapper = styled.div`
   width: 100%;

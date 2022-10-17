@@ -141,9 +141,6 @@ import {
     return (
       <Wrapper>
         <File>
-          <WDLabelBrandBold>
-            <Label>{'File upload'}</Label>
-          </WDLabelBrandBold>
           <UploadWrapper
             id="drop-area"
             onDragEnter={preventDefaults}

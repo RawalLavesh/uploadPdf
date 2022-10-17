@@ -3,17 +3,10 @@ import {
   MasterWrapper,
   MainWrapper,
   Wrapper2,
-  SubWrapper,
-  PreviewLocate,
-  PButton,
-  ButtonWrapper,
-  LabelS,
-  DividerWrapper,
-  NoteWrapper,
-  PreviewLocatesWrapper,
-  ToastWrapper,
-  SpinnerWrapper,
-  LottieWrapper,
+  Wrapper3,
+  WDCard,
+  WDCardContent,
+  ButtonWrapper
 } from './styles'
 import Label from '../../components/label/Label'
 import Button from '../../components/button/Button'
@@ -38,16 +31,12 @@ import {
   WDLabelHeadingWhite,
   WDLabelHeadingWhiteBold,
 } from '../../components/ui/WDLabel'
-import {
-  WDCard,
-  WDCardContent,
-  WDCardFooter,
-  WDCardHeader,
-} from '../../components/ui/WDCard'
+
 import {
   WDButtonAccentLarge,
   WDButtonLarge,
 } from '../../components/ui/WDButton'
+import LatestUpload from '../latestUpload/LatestUpload'
 
 export const UploadDoc = () => {
   const documentTypes = [
@@ -72,6 +61,7 @@ export const UploadDoc = () => {
       documentType: 'UpcomingEvents'
     }
   ]
+  const disabledButton = true
   const uploadDocRequestData = useContext(UploadDocStore)
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()
@@ -308,122 +298,27 @@ export const UploadDoc = () => {
       <MasterWrapper>
         <MainWrapper>
           <WDCard>
-            <WDCardHeader>
-              <WDLabelHeadingWhite>
-                <Label>{'Locate Request'}</Label>
-              </WDLabelHeadingWhite>
-            </WDCardHeader>
             <WDCardContent>
               <Wrapper2>
                 <DocUpload uploadCallBackFn={setDocUploadUpload} />
-                <IndividualRequest
-                  disabled={isDocUploadUploaded}
-                  previewClicked={previewButtonClicked.length}
-                  formCallBackFn={handleFormValues}
-                />
               </Wrapper2>
+              <Wrapper3>
+                <LatestUpload fileName='test' uploadedDate='10/14/2022' uploadedBy='test'/>
+              </Wrapper3>
             </WDCardContent>
-            <WDHorizontalDivider />
-            <WDCardFooter>
-              <WDButtonLarge>
-                <Button onClick={handlePreview} type={'button'}>
-                  {'Preview'}
-                </Button>
-              </WDButtonLarge>
-            </WDCardFooter>
+            <ButtonWrapper>
+              <Button
+              type={'button'}
+              padding='10px 40px'
+              bgColor= {disabledButton ? '#E2E8F0' : '#2563EB'}
+              borderRadius='4px'
+              color={disabledButton ? '#A7AFBC' : '#ffffff'}
+              borderColor='transparent'
+              disabled={disabledButton}
+              >Upload</Button>
+            </ButtonWrapper>
           </WDCard>
         </MainWrapper>
-        {locateRequestData.totalLocates > 0 && (
-          <SubWrapper ref={previewLocateRef}>
-            <PreviewLocate>
-              <LabelS>
-                <WDLabelHeadingWhite>
-                  <Label>{'Preview Locates'}</Label>
-                </WDLabelHeadingWhite>
-                <WDLabelHeadingWhiteBold>
-                  <Label>{`Total: ${locateRequestData.totalLocates.toLocaleString(
-                    'en-US'
-                  )}`}</Label>
-                </WDLabelHeadingWhiteBold>
-              </LabelS>
-              <PreviewLocatesWrapper>
-                <PreviewLocates
-                  rowData={filteredData}
-                  totalLength={locateRequestData.totalLocates}
-                  validLength={locateRequestData.validLocates}
-                  invalidLength={locateRequestData.invalidLocates}
-                  deleteCallbackFn={deleteRequest}
-                  filterCallbackFn={handleFilter}
-                />
-              </PreviewLocatesWrapper>
-              <DividerWrapper>
-                <WDHorizontalDivider />
-              </DividerWrapper>
-              <PButton>
-                <NoteWrapper>
-                  <WDLabelGray>
-                    <Label>{`Note: Only`}</Label>
-                  </WDLabelGray>
-                  &nbsp;
-                  <WDLabelGrayBold>
-                    <Label>{`valid`}</Label>
-                  </WDLabelGrayBold>
-                  &nbsp;
-                  <WDLabelGray>
-                    <Label>{`items will be submitted`}</Label>
-                  </WDLabelGray>
-                </NoteWrapper>
-                <ButtonWrapper>
-                  <WDButtonAccentLarge>
-                    <Button onClick={deleteAllTableData} type={'button'}>
-                      {'Clear'}
-                    </Button>
-                  </WDButtonAccentLarge>
-                  <WDButtonLarge>
-                    <Button onClick={handleSubmit} type={'button'}>
-                      {'Submit'}
-                    </Button>
-                  </WDButtonLarge>
-                </ButtonWrapper>
-              </PButton>
-            </PreviewLocate>
-          </SubWrapper>
-        )}
-        {isLoading && (
-          <SpinnerWrapper>
-            <LottieWrapper>
-              <Lottie animationData={Loader} loop={true} />
-            </LottieWrapper>
-          </SpinnerWrapper>
-        )}
-        {apiPreviewStatus.status !== null && (
-          <ToastWrapper>
-            <Toast
-              text={apiPreviewStatus.text}
-              type={apiPreviewStatus.status ? 'success' : 'danger'}
-              openStatusCallback={(status: boolean) =>
-                setAPIPreviewStatus({
-                  status: status ? status : null,
-                  text: '',
-                })
-              }
-            />
-          </ToastWrapper>
-        )}
-        {apiSubmitStatus.status !== null && (
-          <ToastWrapper>
-            <Toast
-              text={apiSubmitStatus.text}
-              type={apiSubmitStatus.status ? 'success' : 'danger'}
-              openStatusCallback={(status: boolean) =>
-                setAPISubmitStatus({
-                  status: status ? status : null,
-                  text: '',
-                })
-              }
-            />
-          </ToastWrapper>
-        )}
       </MasterWrapper>
     </UploadDocStoreProvider>
   )

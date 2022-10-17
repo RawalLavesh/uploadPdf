@@ -19,8 +19,8 @@ const App: FC = () => {
             <Route path="/reviewlocate" element={<ReviewLocate />} />
             <Route path="/docupload" element={<DocUpload />} />
           </Route>
-          <Route path="/" element={<Navigate to="/submit" />} />
-          <Route path="*" element={<Navigate to="/submit" />} />
+          <Route path="/" element={<Navigate to="/docupload" />} />
+          <Route path="*" element={<Navigate to="/docupload" />} />
         </Routes>
       </Suspense>
     // </AuthContext.Provider>
