@@ -1,9 +1,5 @@
 const CoverageTableColumns = [
   {
-    Header: ' ',
-    accessor: '',
-  },
-  {
     Header: '#',
     accessor: 'documentId',
   },

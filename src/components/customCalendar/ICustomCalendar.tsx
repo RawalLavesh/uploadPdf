@@ -46,6 +46,7 @@ export interface CustomCalendarProps {
   minDate?: Date
   maxDate?: Date
   resetValue?: string
+  disable?: boolean
 }
 
 export interface HeaderProps {

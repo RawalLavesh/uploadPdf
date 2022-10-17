@@ -12,11 +12,11 @@ const EmptyState = () => {
       <SvgNoTransaction />
       <LabelWrapper>
         <WDWelcome>
-          <Label>{'No Activity'}</Label>
+          <Label>{'No Files Available'}</Label>
         </WDWelcome>
       </LabelWrapper>
       <WDStyledFinancialHeading>
-        <Label>{'Your recent activity will appear here'}</Label>
+        <Label>{'Recent files will appear here'}</Label>
       </WDStyledFinancialHeading>
     </Container>
   )

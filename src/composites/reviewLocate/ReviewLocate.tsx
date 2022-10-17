@@ -127,7 +127,9 @@ export const Review = () => {
   const [reviewRequestData, setReviewData] = useState(
     reviewLocateRequestData.reviewLocateRequests
   )
-  const [reviewFilteredDataCount, setReviewFilteredDataCount] = useState(reviewRequestData.totalRecordCount)
+  const [reviewFilteredDataCount, setReviewFilteredDataCount] = useState(
+    reviewRequestData.totalRecordCount
+  )
   const [downloadReviewData, setDownloadReviewData] = useState<ReviewRequest[]>(
     []
   )
@@ -262,7 +264,7 @@ export const Review = () => {
             }
           })
           setReviewData({ ...res.data, requests: responseData })
-          switch(currentFilterOption.value) {
+          switch (currentFilterOption.value) {
             case '1':
               setReviewFilteredDataCount(res.data.pendingRecordCount)
               break
@@ -530,7 +532,14 @@ export const Review = () => {
                               <Button
                                 type={'button'}
                                 disabled={false}
-                                onClick={() => openModal(1, 50, filters.statuses && filters.statuses[0].toString())}
+                                onClick={() =>
+                                  openModal(
+                                    1,
+                                    50,
+                                    filters.statuses &&
+                                      filters.statuses[0].toString()
+                                  )
+                                }
                               >
                                 {'Apply filters'}
                               </Button>

@@ -21,12 +21,14 @@ import {
   ReviewTableProps,
 } from '../../shared/models/ICoverageList'
 import EmptyState from '../emptyState/EmptyState'
+import { COLORS } from '../../theme/Colors'
 
 export const CoverageListTable = ({
   rowData,
   isLoading,
   pageIndex,
   pageSize,
+  downloadFile,
 }: ReviewTableProps) => {
   const data: ReviewTable[] = useMemo(() => rowData, [rowData])
   const columns = useMemo<ColumnDetails[]>(() => CoverageTableColumns, []) as []
@@ -70,27 +72,21 @@ export const CoverageListTable = ({
                     return (
                       <TableRow {...row.getRowProps()} key={rowIndex}>
                         {row.cells.map((cell, index) => {
-                          return index == 1 ? (
-                            <TableDataCell {...cell.getCellProps()}>
-                              {pageSize * (pageIndex - 1) + rowIndex + 1}
-                            </TableDataCell>
-                          ) : index == 0 ? (
+                          return (
                             <TableDataCell
-                              className={
-                                cell.column.Header === 'More'
-                                  ? cell.value
-                                  : undefined
-                              }
                               {...cell.getCellProps()}
-                            ></TableDataCell>
-                          ) : (
-                            <TableDataCell
-                              className={
-                                cell.column.Header === 'Status'
-                                  ? cell.value
-                                  : undefined
+                              key={index}
+                              onClick={() => downloadFile(rowIndex)}
+                              cursorPointer={
+                                cell.column.Header === 'File name'
+                                  ? true
+                                  : false
                               }
-                              {...cell.getCellProps()}
+                              color={
+                                cell.column.Header === 'File name'
+                                  ? COLORS.UI.BackgroundStrong
+                                  : ''
+                              }
                             >
                               {cell.render('Cell')}
                             </TableDataCell>

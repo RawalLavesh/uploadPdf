@@ -26,6 +26,7 @@ const CustomCalendar = ({
   resetValue,
   minDate,
   maxDate,
+  disable,
 }: CustomCalendarProps) => {
   const getStartingYear = (year: number) => {
     return Math.floor(year / 9) * 9
@@ -182,9 +183,10 @@ const CustomCalendar = ({
     <CustomCalendarWrapper ref={wrapperRef}>
       <InputBox
         name={name}
-        onClick={() =>
-          setState({ ...state, isCalendarOpen: !state.isCalendarOpen })
-        }
+        onClick={() => {
+          if (!disable)
+            setState({ ...state, isCalendarOpen: !state.isCalendarOpen })
+        }}
         value={value ? formatDate(new Date(value)) : getSelectedDate()}
         placeholder={placeholder}
       />

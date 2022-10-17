@@ -14,6 +14,7 @@ import {
   FormContainer,
   LottieWrapper,
   SpinnerWrapper,
+  ToastWrapper,
 } from './styles'
 import Label from '../../components/label/Label'
 import Button from '../../components/button/Button'
@@ -49,6 +50,7 @@ import SvgFileExport from '../../components/svg/SvgFileExport'
 import { COLORS } from '../../theme/Colors'
 import { AuthContext } from '../../store/LoginAuthContext'
 import moment from 'moment'
+import { Toast } from '../../components/toast/Toast'
 
 export const CoverageList = () => {
   const [staticData, setStaticData] = useState([
@@ -137,15 +139,13 @@ export const CoverageList = () => {
   const form = useRef<HTMLFormElement>(null)
   const csvLinkRef = useRef<HTMLDivElement>(null)
 
-  const [reviewFilteredDataCount, setReviewFilteredDataCount] = useState(
-    staticData.length
-  )
   const [downloadReviewData, setDownloadReviewData] = useState<ReviewTable[]>(
     []
   )
   const [tmpStaticData, setTmpStaticData] = useState(staticData)
 
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(false)
   const [isAPILoading, setIsAPILoading] = useState(false)
   const [isChange, setIsChange] = useState(true)
 
@@ -195,7 +195,6 @@ export const CoverageList = () => {
       }
     })
     setStaticData(filterArr)
-    setReviewFilteredDataCount(filterArr.length)
   }
 
   const submitForm = (event: SubmitEvent) => {
@@ -203,10 +202,10 @@ export const CoverageList = () => {
     openModal()
   }
 
-  const downloadFile = (event?: BaseSyntheticEvent) => {
+  const exportFileHistory = (event?: BaseSyntheticEvent) => {
     const htmlElement = event?.target as HTMLElement
     if (htmlElement.nodeName === 'BUTTON') {
-      setIsAPILoading(true)
+      setDownloadReviewData([...staticData])
     }
   }
 
@@ -223,8 +222,11 @@ export const CoverageList = () => {
     setFilters(updatedValue)
     setIsChange(true)
     setStaticData(tmpStaticData)
+    setErrorMessage(false)
   }
-
+  const downloadFile = (val: number) => {
+    console.log('downloadFile=>', val)
+  }
   return (
     <MasterWrapper>
       <SubWrapper>
@@ -254,9 +256,10 @@ export const CoverageList = () => {
                           />
                         </WDCalendar>
                       </DateWrapper>
-                      <DateWrapper>
+                      <DateWrapper onClick={() => setErrorMessage(true)}>
                         <WDCalendar>
                           <CustomCalendar
+                            disable={!filters.fromDate ? true : false}
                             name="toDate"
                             placeholder="To Date"
                             onChange={getToDate}
@@ -316,13 +319,13 @@ export const CoverageList = () => {
                         <FlexItem>
                           <DownloadWrapper>
                             <ExportCSV
-                              csvData={downloadReviewData}
+                              csvData={staticData}
                               fileName={
-                                'Export File History' +
+                                'UploadFileHistory_' +
                                 formatDate(new Date()) +
                                 '.csv'
                               }
-                              onClickCallBackFn={downloadFile}
+                              onClickCallBackFn={exportFileHistory}
                               reference={csvLinkRef}
                             >
                               <SvgFileExport fillColor={COLORS.UI.Primary60} />
@@ -340,6 +343,7 @@ export const CoverageList = () => {
               <DetailsContainer>
                 <CoverageListTable
                   rowData={staticData}
+                  downloadFile={downloadFile}
                   isLoading={false}
                   pageIndex={1}
                   pageSize={50}
@@ -349,13 +353,21 @@ export const CoverageList = () => {
           </WDCard>
         </ReviewLocate>
       </SubWrapper>
-
       {isAPILoading && (
         <SpinnerWrapper>
           <LottieWrapper>
             <Lottie animationData={Loader} loop={true} />
           </LottieWrapper>
         </SpinnerWrapper>
+      )}
+      {!filters.fromDate && errorMessage && (
+        <ToastWrapper>
+          <Toast
+            text={'Invalid Date! End Date should not prior to Start date'}
+            type={'danger'}
+            openStatusCallback={(status: boolean) => setErrorMessage(status)}
+          />
+        </ToastWrapper>
       )}
     </MasterWrapper>
   )

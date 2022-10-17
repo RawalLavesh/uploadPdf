@@ -142,7 +142,11 @@ export const TableHeaderCell = styled.th``
 
 export const TableBody = styled.tbody``
 
-export const TableDataCell = styled.td``
+export const TableDataCell = styled.td`
+  cursor: ${(props: { cursorPointer: boolean }) =>
+    props.cursorPointer ? 'pointer' : 'auto'};
+  color: ${(props: { color: string }) => props.color || COLORS.UI.Text};
+`
 
 export const NoDataWrapper = styled.div`
   text-align: center;
