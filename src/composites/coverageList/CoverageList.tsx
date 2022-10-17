@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent, useRef, useState } from 'react'
+import React, { BaseSyntheticEvent, useEffect, useRef, useState } from 'react'
 import {
   MasterWrapper,
   SubWrapper,
@@ -142,6 +142,15 @@ export const CoverageList = () => {
   const [downloadReviewData, setDownloadReviewData] = useState<ReviewTable[]>(
     []
   )
+
+  useEffect(() => {
+    if (downloadReviewData.length) {
+      const htmlAnchorElement = csvLinkRef.current?.children[0].children[0]
+        .children[0] as HTMLAnchorElement
+      htmlAnchorElement.click()
+    }
+  }, [downloadReviewData])
+
   const [tmpStaticData, setTmpStaticData] = useState(staticData)
 
   const [isLoading, setIsLoading] = useState(false)
