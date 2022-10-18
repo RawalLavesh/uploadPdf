@@ -120,3 +120,11 @@ export const WDCardContent = styled.div`
   padding: ${SIZES[3]} ${SIZES[4]};
   background: ${COLORS.Background.White};
 `
+
+export const HeaderWrapper = styled.div`
+  display: flex;
+  flex: 0 1 50%;
+  justify-content: flex-start;
+  padding: 0 0 30px calc(13% + 48px);
+  text-align: left;
+`

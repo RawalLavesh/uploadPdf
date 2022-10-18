@@ -11,21 +11,17 @@ function PageContent() {
   const mainRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     mainRef.current &&
-    mainRef.current.scrollIntoView({
-      block: 'start',
-      behavior: 'smooth',
-    })
+      mainRef.current.scrollIntoView({
+        block: 'start',
+        behavior: 'smooth',
+      })
   })
   return (
     <MainPane>
-      <HeaderLayout>
-        <HeaderContent />
-      </HeaderLayout>
       <BodyPane ref={mainRef}>
         <SubWrapper>
           <Outlet />
         </SubWrapper>
-      
       </BodyPane>
     </MainPane>
   )

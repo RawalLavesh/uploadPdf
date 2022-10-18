@@ -6,60 +6,58 @@ import {
   Wrapper3,
   WDCard,
   WDCardContent,
-  ButtonWrapper
+  ButtonWrapper,
+  HeaderWrapper,
 } from './styles'
 import Label from '../../components/label/Label'
 import Button from '../../components/button/Button'
-import { IndividualRequest } from '../individualRequest/IndividualRequest'
 import { DocUpload } from '../docUpload/DocUpload'
-import PreviewLocates from '../previewLocateRequest/PreviewLocateRequest'
 import UploadDocStore, {
   UploadDocStoreProvider,
 } from '../../store/UploadDocContext'
-import { SubmitLocateValidationResponse,StockLocateResponse,SubmitLocateValidationPayload  } from '../../shared/models/ISubmitLocate'
-import { UploadedFileValidationResponse, UploadedFileResponse, UploadFileValidationPayload  } from '../../shared/models/IUploadDoc'
+import {
+  SubmitLocateValidationResponse,
+  StockLocateResponse,
+  SubmitLocateValidationPayload,
+} from '../../shared/models/ISubmitLocate'
+import {
+  UploadedFileValidationResponse,
+  UploadedFileResponse,
+  UploadFileValidationPayload,
+} from '../../shared/models/IUploadDoc'
 import { Toast } from '../../components/toast/Toast'
 import { AxiosError } from 'axios'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../store/LoginAuthContext'
 import Lottie from 'lottie-react'
 import Loader from '../../assets/lottiefiles/loader.json'
-import {
-  WDHorizontalDivider,
-  WDLabelGray,
-  WDLabelGrayBold,
-  WDLabelHeadingWhite,
-  WDLabelHeadingWhiteBold,
-} from '../../components/ui/WDLabel'
 
-import {
-  WDButtonAccentLarge,
-  WDButtonLarge,
-} from '../../components/ui/WDButton'
 import LatestUpload from '../latestUpload/LatestUpload'
+import DocNavigation from '../docNavigation/DocNavigation'
+import { getDocListRequest } from '../../apiConfig/uploadDocConfig'
 
 export const UploadDoc = () => {
   const documentTypes = [
     {
       id: 1,
-      documentType: 'CoverageList'
+      documentType: 'CoverageList',
     },
     {
       id: 2,
-      documentType: 'ValTable'
+      documentType: 'ValTable',
     },
     {
       id: 3,
-      documentType: 'EquityResearchDirectory'
+      documentType: 'EquityResearchDirectory',
     },
     {
       id: 4,
-      documentType: 'MarketMakerList'
+      documentType: 'MarketMakerList',
     },
     {
       id: 5,
-      documentType: 'UpcomingEvents'
-    }
+      documentType: 'UpcomingEvents',
+    },
   ]
   const disabledButton = true
   const uploadDocRequestData = useContext(UploadDocStore)
@@ -84,6 +82,7 @@ export const UploadDoc = () => {
     text: '',
   })
   const [isDocUploadUploaded, setIsDocUploadUploaded] = useState(false)
+  const [docType, setDocType] = useState(1)
   const [locateRequestData, setData] = useState<SubmitLocateValidationResponse>(
     uploadDocRequestData.submitLocateRequest.submitRequestResponse
   )
@@ -119,183 +118,30 @@ export const UploadDoc = () => {
     filteredData.length && scrollToPreviewSection()
   }, [filteredData])
 
-  const handleFormValues = (
-    stockLocateData: SubmitLocateValidationPayload[]
-  ) => {
-    uploadDocRequestData.setBulkRequest(stockLocateData)
-    setIsLoading(true)
-    uploadDocRequestData
-      .sendSubmitLocateValidateRequest(stockLocateData)
-      .then((res) => {
-        if (res.data) {
-          uploadDocRequestData.submitLocateRequest.submitRequestResponse =
-            res.data
-          setAPIPreviewStatus({
-            status: true,
-            text: 'Your requests have been added to the Preview Locates section.',
-          })
-          setIsLoading(false)
-          setData({
-            ...uploadDocRequestData.submitLocateRequest
-              .submitRequestResponse,
-          })
-        }
-      })
-      .catch((error: AxiosError) => {
-        setAPIPreviewStatus({
-          status: false,
-          text: error.response ? error.response.statusText : error.message,
-        })
-        setIsLoading(false)
-      })
-  }
-
-  const validateData = (dataSet: SubmitLocateValidationPayload[]) => {
-    if (dataSet.length > 0) {
-      const invalidDataSet = dataSet
-        .map((data: SubmitLocateValidationPayload, index: number) => {
-          if (!data.accountNumber || !data.cusip || !data.quantity) {
-            return index + 1
-          }
-        })
-        .filter((data) => data)
-        .map((data) => data && data + 1)
-      if (invalidDataSet.length > 0) {
-        setAPIPreviewStatus({
-          status: false,
-          text:
-            'The csv file is missing some fields at line no(s) ' +
-            invalidDataSet.join(','),
-        })
-        return false
-      } else {
-        return true
-      }
-    } else {
-      setAPIPreviewStatus({
-        status: false,
-        text: 'The csv file is empty.',
-      })
-      return false
-    }
-  }
-
-  const handlePreview = () => {
-    if (isDocUploadUploaded) {
-      const isValidData = validateData(
-        uploadDocRequestData.submitLocateRequest.bulkRequest
-      )
-      if (isValidData) {
-        handleFormValues(
-          uploadDocRequestData.submitLocateRequest.bulkRequest
-        )
-      }
-    } else {
-      previewButtonClicked.push(previewButtonClicked.length + 1)
-      setPreviewButtonClicked([...previewButtonClicked])
-    }
-  }
-
-  const deleteAllTableData = () => {
-    uploadDocRequestData.deleteAllRequest()
-    setData({
-      ...uploadDocRequestData.submitLocateRequest.submitRequestResponse,
+  const handleDocTypeChange = (docType: number) => {
+    setDocType(docType)
+    getDocListRequest(docType).then((res) => {
+      console.log('what is the data coming back from the api', res)
     })
-    setFilteredData([
-      ...uploadDocRequestData.submitLocateRequest.submitRequestResponse
-        .stockLocates,
-    ])
-  }
-
-  const deleteRequest = (indexes: number[]) => {
-    const locateIndexes: number[] = []
-    const deletedRows = filteredData.filter((value, index) => {
-      if (indexes.includes(index)) {
-        return value
-      }
-    })
-    locateRequestData.stockLocates.forEach((value, index) => {
-      if (deletedRows.includes(value)) {
-        if (!locateIndexes.includes(index)) {
-          locateIndexes.push(index)
-          deletedRows.splice(deletedRows.indexOf(value), 1)
-        }
-      }
-    })
-    uploadDocRequestData.deleteRequest(locateIndexes)
-    setData({
-      ...uploadDocRequestData.submitLocateRequest.submitRequestResponse,
-    })
-    setFilteredData([
-      ...uploadDocRequestData.submitLocateRequest.submitRequestResponse
-        .stockLocates,
-    ])
-  }
-
-  const handleFilter = (filterStatus: string) => {
-    let filterData: StockLocateResponse[] = []
-    if (locateRequestData) {
-      if (filterStatus === 'All') {
-        filterData = locateRequestData.stockLocates
-      } else if (filterStatus === 'Valid') {
-        filterData = locateRequestData.stockLocates.filter(
-          (response) => response.isLocateValid === true
-        )
-      } else if (filterStatus === 'Invalid') {
-        filterData = locateRequestData.stockLocates.filter(
-          (response) => response.isLocateValid === false
-        )
-      } else {
-        setFilteredData([])
-      }
-      setFilteredData([...filterData])
-    } else {
-      setFilteredData([])
-    }
-  }
-
-  const handleSubmit = () => {
-    if (locateRequestData.validLocates > 0) {
-      setIsLoading(true)
-      uploadDocRequestData
-        .sendSubmitLocateRequest(user.userName)
-        .then((res) => {
-          if (res.data) {
-            setIsLoading(false)
-            setAPISubmitStatus({
-              status: true,
-              text: 'Your valid locates have been added to the Review your requests section.',
-            })
-            setIsStockLocateDataSubmitted(true)
-            deleteAllTableData()
-          }
-        })
-        .catch((error: AxiosError) => {
-          setIsLoading(false)
-          setAPISubmitStatus({
-            status: false,
-            text: error.response ? error.response.statusText : error.message,
-          })
-        })
-    } else {
-      setAPISubmitStatus({
-        status: false,
-        text: 'There are no valid items available to Submit',
-      })
-    }
   }
 
   const setDocUploadUpload = (status: boolean) => {
     setIsDocUploadUploaded(status)
   }
 
-  useEffect(() => {
-    deleteAllTableData()
-  }, [])
+  const setDocumentType = (docType: number) => {
+    handleDocTypeChange(docType)
+  }
 
   return (
     <UploadDocStoreProvider>
       <MasterWrapper>
+        <HeaderWrapper>
+          <Label fontSize="42px" fontWeight={700} color="#1E3A8A">
+            Equity Research File Library
+          </Label>
+        </HeaderWrapper>
+        <DocNavigation uploadCallBackFn={setDocumentType} />
         <MainWrapper>
           <WDCard>
             <WDCardContent>
@@ -303,19 +149,25 @@ export const UploadDoc = () => {
                 <DocUpload uploadCallBackFn={setDocUploadUpload} />
               </Wrapper2>
               <Wrapper3>
-                <LatestUpload fileName='test' uploadedDate='10/14/2022' uploadedBy='test'/>
+                <LatestUpload
+                  fileName="test"
+                  uploadedDate="10/14/2022"
+                  uploadedBy="test"
+                />
               </Wrapper3>
             </WDCardContent>
             <ButtonWrapper>
               <Button
-              type={'button'}
-              padding='10px 40px'
-              bgColor= {disabledButton ? '#E2E8F0' : '#2563EB'}
-              borderRadius='4px'
-              color={disabledButton ? '#A7AFBC' : '#ffffff'}
-              borderColor='transparent'
-              disabled={disabledButton}
-              >Upload</Button>
+                type={'button'}
+                padding="10px 40px"
+                bgColor={disabledButton ? '#E2E8F0' : '#2563EB'}
+                borderRadius="4px"
+                color={disabledButton ? '#A7AFBC' : '#ffffff'}
+                borderColor="transparent"
+                disabled={disabledButton}
+              >
+                Upload
+              </Button>
             </ButtonWrapper>
           </WDCard>
         </MainWrapper>
