@@ -1,9 +1,8 @@
 export interface UploadedFile {
     documentId: number,
     documentName: string,
-    uploadedDate: Date,
-    uploadedBy: string,
-    editedBy: string
+    uploadedDate: string,
+    uploadedBy: string
 }
 
 export interface DocumentType {

@@ -1,11 +1,10 @@
 import styled from 'styled-components'
+import { UploadedFile } from '../../shared/models/IUploadDoc'
 
 import { Colors } from '../../shared/styles'
 
 export interface CardProps {
-  fileName: string
-  uploadedDate: string
-  uploadedBy: string
+  latestFile: UploadedFile
 }
 
 export const Wrapper = styled.div`
