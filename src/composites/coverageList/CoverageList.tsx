@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent, useEffect, useRef, useState } from 'react'
+import React, { BaseSyntheticEvent, useCallback, useEffect, useRef, useState } from 'react'
 import {
   MasterWrapper,
   SubWrapper,
@@ -50,67 +50,14 @@ import SvgFileExport from '../../components/svg/SvgFileExport'
 import { COLORS } from '../../theme/Colors'
 import { AuthContext } from '../../store/LoginAuthContext'
 import moment from 'moment'
-import { Toast } from '../../components/toast/Toast'
+import { Toast } from '../../components/toast/Toast';
+import { retrieveDocRequest, getDocListRequest } from '../../apiConfig/uploadDocConfig';
 
-export const CoverageList = () => {
-  const [staticData, setStaticData] = useState([
-    {
-      documentId: '1',
-      uploadedBy: 'john',
-      uploadedDate: '01/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '2',
-      uploadedBy: 'messi',
-      uploadedDate: '02/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '3',
-      uploadedBy: 'aryan',
-      uploadedDate: '07/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '4',
-      uploadedBy: 'john',
-      uploadedDate: '05/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '5',
-      uploadedBy: 'ruby',
-      uploadedDate: '03/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '6',
-      uploadedBy: 'morgan',
-      uploadedDate: '09/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '7',
-      uploadedBy: 'ruby',
-      uploadedDate: '03/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-    {
-      documentId: '8',
-      uploadedBy: 'morgan',
-      uploadedDate: '09/10/2022',
-      documentName: 'coverage_list.pdf',
-      documentType: 0,
-    },
-  ])
+export const CoverageList = (props:any) => {
+  const documentTypes = ['Coverage List', 'Valtable', 'Equity Research Directory',
+  'Market Maker List', 'Upcoming Events'];
+  const [staticData, setStaticData] = useState<any>([])
+  const [tmpStaticData, setTmpStaticData] = useState<any>([])
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -151,12 +98,10 @@ export const CoverageList = () => {
     }
   }, [downloadReviewData])
 
-  const [tmpStaticData, setTmpStaticData] = useState(staticData)
-
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState(false)
   const [isAPILoading, setIsAPILoading] = useState(false)
-  const [isChange, setIsChange] = useState(true)
+  const [isChange, setIsChange] = useState(true) 
 
   const getFromDate = (date: Date) => {
     const updatedValue: CoverageListRequestModel = {
@@ -194,9 +139,9 @@ export const CoverageList = () => {
       documentName: string
       documentType: number
     }[] = []
-    staticData.map((item) => {
+    staticData && staticData.map((item:any) => {
       const formateDate = moment(item.uploadedDate.toString()).format(
-        'YYYY-DD-MM'
+        'MM/DD/YYYY'
       )
       const iDate = moment(formateDate).unix() * 1000
       if (iDate >= unixStartDate && iDate <= unixEndDate) {
@@ -233,9 +178,44 @@ export const CoverageList = () => {
     setStaticData(tmpStaticData)
     setErrorMessage(false)
   }
-  const downloadFile = (val: number) => {
-    console.log('downloadFile=>', val)
+  const downloadFile = async(val: number, column:any) => {
+    if(column && column.column && column.column.Header == "File name"){
+      try {
+        const { data, status } = await retrieveDocRequest(column.value)
+        if (status === 200) {
+          const pdfFile = new Blob([data],{type: "application/pdf'"});
+          const downloadUrl = URL.createObjectURL(pdfFile);
+          const downloadFile = document.createElement('a');
+          downloadFile.setAttribute('href', downloadUrl);
+          downloadFile.setAttribute('download', column.value);
+          downloadFile.click();
+        }
+      } catch (e) {
+        console.log("retrieve",e)
+      }
+    }
   }
+
+  useEffect(() => {
+    async function getCoverageTable(){
+      setStaticData([])
+      setTmpStaticData([])
+      try {
+        const { data, status } = await getDocListRequest(props.currentIndex.index)
+        if (status === 200) {
+          setStaticData([...data])
+          setTmpStaticData([...data])
+        }
+      } catch (e) {
+        setStaticData([])
+        setTmpStaticData([])
+      }
+    }
+
+    getCoverageTable();
+    
+  }, [props.currentIndex]);
+
   return (
     <MasterWrapper>
       <SubWrapper>
@@ -243,7 +223,7 @@ export const CoverageList = () => {
           <WDCard>
             <WDCardHeader>
               <WDLabelHeadingWhite>
-                <Label>{'Coverage List File History'}</Label>
+                <Label>{`${documentTypes[props.currentIndex.index - 1]} File History`}</Label>
               </WDLabelHeadingWhite>
               <WDLabelHeadingWhiteBold>
                 <Label>{`Total: ${staticData.length}`}</Label>

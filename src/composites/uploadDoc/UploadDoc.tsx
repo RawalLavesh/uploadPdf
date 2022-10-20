@@ -8,6 +8,7 @@ import {
   WDCardContent,
   ButtonWrapper,
   HeaderWrapper,
+  ToastWrapper,
 } from './styles'
 import Label from '../../components/label/Label'
 import Button from '../../components/button/Button'
@@ -15,19 +16,9 @@ import { DocUpload } from '../docUpload/DocUpload'
 import UploadDocStore, {
   UploadDocStoreProvider,
 } from '../../store/UploadDocContext'
-import {
-  SubmitLocateValidationResponse,
-  StockLocateResponse,
-  SubmitLocateValidationPayload,
-} from '../../shared/models/ISubmitLocate'
-import {
-  UploadedFileValidationResponse,
-  UploadedFileResponse,
-  UploadFileValidationPayload,
-  UploadedFile,
-} from '../../shared/models/IUploadDoc'
+
+import { UploadedFileValidationResponse, UploadedFileResponse, UploadFileValidationPayload, UploadedFile  } from '../../shared/models/IUploadDoc'
 import { Toast } from '../../components/toast/Toast'
-import { AxiosError } from 'axios'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../store/LoginAuthContext'
 import Lottie from 'lottie-react'
@@ -35,9 +26,11 @@ import Loader from '../../assets/lottiefiles/loader.json'
 
 import LatestUpload from '../latestUpload/LatestUpload'
 import DocNavigation from '../docNavigation/DocNavigation'
-import { getDocListRequest } from '../../apiConfig/uploadDocConfig'
+import { getDocListRequest, uploadDocRequest } from '../../apiConfig/uploadDocConfig';
 
-export const UploadDoc = () => {
+
+
+export const UploadDoc = (props:any) => {
   const documentTypes = [
     {
       id: 1,
@@ -60,26 +53,39 @@ export const UploadDoc = () => {
       documentType: 'UpcomingEvents',
     },
   ]
-  const disabledButton = true
-  const uploadDocRequestData = useContext(UploadDocStore)
-  const { user } = useContext(AuthContext)
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
   const [isDocUploadUploaded, setIsDocUploadUploaded] = useState(false)
   const [docType, setDocType] = useState(1)
+  const [binaryData,setBinaryData] = useState<any>("")
+  const [formDetails,setFormDetails] = useState<any>("")
+  const [uploadStatus,setUploadStatus] = useState<boolean>(false)
+
   const today = new Date()
   const nullDoc: UploadedFile = {
     documentId: 0,
     documentName: '',
     uploadedBy: '',
-    uploadedDate: today.toString(),
+    uploadedDate: today.toString()
   }
   const [latestDocFile, setLastDocFile] = useState(nullDoc)
 
+  useEffect(() => {
+    getDocListRequest(docType)
+    .then((res) => {
+      if (res.data.length > 0) {
+        setLastDocFile(res.data[0])
+      } else {
+        setLastDocFile(nullDoc)
+      }
+    })
+  }, [])
+
   const handleDocTypeChange = (docType: number) => {
     setDocType(docType)
-    getDocListRequest(docType).then((res) => {
+    getDocListRequest(docType)
+    .then((res) => {
       if (res.data.length > 0) {
         setLastDocFile(res.data[0])
       } else {
@@ -94,22 +100,47 @@ export const UploadDoc = () => {
 
   const setDocumentType = (docType: number) => {
     handleDocTypeChange(docType)
+    props.getSelectedIndex(docType)
+  }
+
+  const setDataToPost = async()=>{
+    try {
+      const uploadFile: UploadFileValidationPayload = {
+        uploadedBy: formDetails?.name,
+        uploadedDate: new Date(),
+        documentType:docType,
+        formFiles: binaryData
+      }
+      const { data, status } = await uploadDocRequest(uploadFile);
+      if (status === 200) {
+        console.log(data)
+        setIsDocUploadUploaded(false)
+        setUploadStatus(true)
+        props.getSelectedIndex(docType)
+      }
+    } catch (e) {
+      setUploadStatus(false)
+      console.log("error",e)
+    }
+  }
+
+  const callBackUploadFile = (binaryFile:any,fileName:any)=>{
+    setBinaryData(binaryFile?.get("FormFiles"));
+    setFormDetails(fileName)
   }
 
   return (
     <UploadDocStoreProvider>
       <MasterWrapper>
-        <HeaderWrapper>
-          <Label fontSize="42px" fontWeight={700} color="#1E3A8A">
-            Equity Research File Library
-          </Label>
-        </HeaderWrapper>
-        <DocNavigation uploadCallBackFn={setDocumentType} />
+      <HeaderWrapper>
+        <Label fontSize='42px' fontWeight={700} color='#1E3A8A'>Equity Research File Library</Label>
+      </HeaderWrapper>
+      <DocNavigation uploadCallBackFn={setDocumentType} />
         <MainWrapper>
           <WDCard>
             <WDCardContent>
               <Wrapper2>
-                <DocUpload uploadCallBackFn={setDocUploadUpload} />
+                <DocUpload uploadSuccess={uploadStatus} returnFileData={callBackUploadFile} uploadCallBackFn={setDocUploadUpload} />
               </Wrapper2>
               <Wrapper3>
                 <LatestUpload latestFile={latestDocFile} />
@@ -119,11 +150,12 @@ export const UploadDoc = () => {
               <Button
                 type={'button'}
                 padding="10px 40px"
-                bgColor={disabledButton ? '#E2E8F0' : '#2563EB'}
+                bgColor={!isDocUploadUploaded ? '#E2E8F0' : '#2563EB'}
                 borderRadius="4px"
-                color={disabledButton ? '#A7AFBC' : '#ffffff'}
+                color={!isDocUploadUploaded ? '#A7AFBC' : '#ffffff'}
                 borderColor="transparent"
-                disabled={disabledButton}
+                disabled={(isDocUploadUploaded)?false:true}
+                onClick={()=>{setDataToPost()}}
               >
                 Upload
               </Button>

@@ -17,6 +17,6 @@ export interface ReviewTableProps {
     isLoading?: boolean
     pageIndex: number
     pageSize: number
-    downloadFile:(val:number)=>void
+    downloadFile:(val:number,cell:any)=>void
   }
   

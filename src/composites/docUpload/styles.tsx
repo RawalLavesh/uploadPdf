@@ -22,7 +22,7 @@ export const UploadWrapper = styled.div`
     background-color: ${COLORS.Background.NeutralMedium};
     border: none;
   }
-height: 142px;
+  height: 142px;
 `
 export const RowWrapper = styled.div`
   width: 100%;

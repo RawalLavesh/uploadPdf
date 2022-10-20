@@ -76,7 +76,7 @@ export const CoverageListTable = ({
                             <TableDataCell
                               {...cell.getCellProps()}
                               key={index}
-                              onClick={() => downloadFile(rowIndex)}
+                              onClick={() => downloadFile(rowIndex,cell)}
                               cursorPointer={
                                 cell.column.Header === 'File name'
                                   ? true

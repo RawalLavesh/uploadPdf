@@ -6,7 +6,7 @@ export const MainPane = styled.div`
   flex-direction: column;
   flex: 5 1 auto;
   min-height: 100vh;
-  background: ${COLORS.Background.Neutral};
+  background: #ffffff;
 `
 export const BodyPane = styled.div`
   display: flex;
@@ -18,6 +18,6 @@ export const BodyPane = styled.div`
 export const SubWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  background: ${COLORS.Background.Neutral};
+  background: #ffffff;
 `
 
